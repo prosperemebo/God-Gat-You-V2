@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Load environment variables from the .env file
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
+# Run make with any arguments passed to the script
+make "$@"
