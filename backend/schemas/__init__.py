@@ -1,0 +1,1 @@
+from schemas.wallpaper_schemas import WallpaperSchema
