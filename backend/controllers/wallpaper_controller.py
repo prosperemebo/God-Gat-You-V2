@@ -4,20 +4,49 @@ from sqlalchemy.exc import IntegrityError
 
 from db import db
 from models import WallpaperModel
-from schemas import WallpaperSchema
+from schemas import (
+    WallpaperSchema,
+    AllWallpapersSchema,
+    WallpaperQuerySchema,
+    CreateWallpaperSchema,
+)
+from flask import request
 
 blueprint = Blueprint(
-    "Wallpapers", __name__, description="Wallpapers related operations"
+    "Wallpapers",
+    __name__,
+    description="Wallpapers related operations",
+    url_prefix="/api/v1/wallpapers",
 )
 
 
-@blueprint.route("/api/v1/wallpapers")
+@blueprint.route("/")
 class Wallpapers(MethodView):
-    @blueprint.response(200, WallpaperSchema(many=True))
+    @blueprint.arguments(WallpaperQuerySchema, location="query")
+    @blueprint.response(200, AllWallpapersSchema)
     def get(self):
-        return WallpaperModel.query.all()
+        page = request.args.get("page", default=1, type=int)
+        page_size = request.args.get("page_size", default=10, type=int)
 
-    @blueprint.arguments(WallpaperSchema)
+        offset = (page - 1) * page_size
+
+        wallpapers = WallpaperModel.query.offset(offset).limit(page_size).all()
+        total_count = WallpaperModel.query.count()
+        total_pages = total_count + page_size - 1
+
+        response = {
+            "status": "success",
+            "message": f"Found {len(wallpapers)} wallpapers",
+            "data": wallpapers,
+            "page": page,
+            "page_size": page_size,
+            "total_count": total_count,
+            "total_pages": total_pages,
+        }
+
+        return response
+
+    @blueprint.arguments(CreateWallpaperSchema, location="files")
     @blueprint.response(201, WallpaperSchema)
     def post(self, new_data):
         wallpaper = WallpaperModel(**new_data)
@@ -32,7 +61,7 @@ class Wallpapers(MethodView):
         return wallpaper
 
 
-@blueprint.route("/api/v1/wallpapers/<int:wallpaper_id>")
+@blueprint.route("/<int:wallpaper_id>")
 class Wallpaper(MethodView):
     @blueprint.response(200, WallpaperSchema(many=True))
     def get(self, wallpaper_id):

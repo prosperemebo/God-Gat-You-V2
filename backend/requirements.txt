@@ -8,3 +8,4 @@ flask-migrate
 passlib
 marshmallow
 psycopg2
+flask_cors

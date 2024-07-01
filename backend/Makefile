@@ -8,7 +8,7 @@ build:
 	docker build -t godgatyou-app .
 
 start:
-	docker run -dp 5005:5000 -w /app -v "$(PWD):/app" godgatyou-app
+	docker run -dp 8000:8000 -w /app -v "$(PWD):/app" godgatyou-app
 
 dropdb:
 	docker exec -it postgres16 dropdb $(DATABASE_NAME)

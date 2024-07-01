@@ -1,8 +1,35 @@
-version: '3'
+version: '5'
 services:
-  backend:
-    build: ./backend
+  postgres:
+    image: postgres
+    container_name: Godgatyou-postgres
+    env_file: ./backend/.env
+    restart: always
     ports:
-      - '5005:5000'
+      - 5432:5432
     volumes:
-      - .:/app
+      - db_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  backend:
+    container_name: Godgatyou-backend
+    build: ./backend
+    command: flask run --host=0.0.0.0
+    volumes:
+      - ./backend:/usr/src/app
+    working_dir: /usr/src/app
+    restart: always
+    env_file:
+      - ./backend/.env
+      - ./backend/.flaskenv
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+
+volumes:
+  db_data:
