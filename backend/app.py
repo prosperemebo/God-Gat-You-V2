@@ -32,8 +32,6 @@ def create_app(db_url=None):
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url or database_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY") or "ggy_secret"
-    
-    print(database_url)
 
     db.init_app(app)
     Migrate(app, db)

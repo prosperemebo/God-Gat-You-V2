@@ -23,17 +23,16 @@ blueprint = Blueprint(
 
 @blueprint.route("/")
 class Wallpapers(MethodView):
-    @blueprint.arguments(WallpaperQuerySchema, location="query")
     @blueprint.response(200, AllWallpapersSchema)
-    def get(self):
-        page = request.args.get("page", default=1, type=int)
-        page_size = request.args.get("page_size", default=10, type=int)
+    @blueprint.paginate()
+    def get(pagination_parameters):
+        page = pagination_parameters.page
+        page_size = pagination_parameters.page_size
 
-        offset = (page - 1) * page_size
-
-        wallpapers = WallpaperModel.query.offset(offset).limit(page_size).all()
-        total_count = WallpaperModel.query.count()
-        total_pages = total_count + page_size - 1
+        pagination = WallpaperModel.query.paginate(page=page, per_page=page_size, count=True)
+        wallpapers = pagination.items
+        total_count = pagination.total
+        total_pages = pagination.pages
 
         response = {
             "status": "success",

@@ -12,7 +12,12 @@ class _WallpaperSchema(Schema):
     desktop = fields.Str()
     tablet = fields.Str()
     downloads = fields.Int(dump_only=True)
-    likes = fields.Int(dump_only=True)
+    likes_count = fields.Int(dump_only=True)
+    is_public = fields.Bool()
+    is_private = fields.Bool()
+    publish_date = fields.DateTime()
+    created_at = fields.DateTime()
+    updated_at = fields.DateTime()
 
 
 class WallpaperSchema(_WallpaperSchema):
@@ -27,13 +32,14 @@ class AllWallpapersSchema(ResponseSchema):
     total_pages = fields.Int()
 
 
+
 class CreateWallpaperSchema(_WallpaperSchema):
     thumbnail = fields.Raw(type="file", required=True)
-    mobile = fields.Raw(type="file", required=True)
-    desktop = fields.Raw(type="file", required=True)
-    tablet = fields.Raw(type="file", required=True)
+    mobile = fields.Raw(type="file", required=False)
+    desktop = fields.Raw(type="file", required=False)
+    tablet = fields.Raw(type="file", required=False)
 
 
 class WallpaperQuerySchema(Schema):
-    page = fields.Int()
+    page = fields.Int(required=False)
     page_size = fields.Int()
