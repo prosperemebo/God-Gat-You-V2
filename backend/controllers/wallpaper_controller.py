@@ -9,6 +9,7 @@ from schemas import (
     AllWallpapersSchema,
     WallpaperQuerySchema,
     CreateWallpaperSchema,
+    ResponseSchema,
 )
 from flask import request
 
@@ -63,11 +64,11 @@ class Wallpapers(MethodView):
 
 @blueprint.route("/<int:wallpaper_id>")
 class Wallpaper(MethodView):
-    @blueprint.response(200, WallpaperSchema(many=True))
+    @blueprint.response(200, WallpaperSchema)
     def get(self, wallpaper_id):
         return WallpaperModel.query.get_or_404(wallpaper_id)
 
-    @blueprint.arguments(WallpaperSchema)
+    @blueprint.arguments(CreateWallpaperSchema, location="files")
     @blueprint.response(201, WallpaperSchema)
     def put(self, wallpaper_data, wallpaper_id):
         wallpaper = WallpaperModel.query.get_or_404(wallpaper_id)
