@@ -32,14 +32,8 @@ class AllWallpapersSchema(ResponseSchema):
     total_pages = fields.Int()
 
 
-
 class CreateWallpaperSchema(_WallpaperSchema):
     thumbnail = fields.Raw(type="file", required=True)
     mobile = fields.Raw(type="file", required=False)
     desktop = fields.Raw(type="file", required=False)
     tablet = fields.Raw(type="file", required=False)
-
-
-class WallpaperQuerySchema(Schema):
-    page = fields.Int(required=False)
-    page_size = fields.Int()

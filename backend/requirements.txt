@@ -9,3 +9,6 @@ passlib
 marshmallow
 psycopg2
 flask_cors
+boto3
+awesome-slugify
+shortuuid
