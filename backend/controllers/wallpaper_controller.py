@@ -1,5 +1,6 @@
 import os
 import boto3
+from sqlalchemy import desc, or_
 import shortuuid
 
 from flask.views import MethodView
@@ -12,9 +13,9 @@ from models import WallpaperModel
 from schemas import (
     WallpaperSchema,
     AllWallpapersSchema,
-    CreateWallpaperSchema,
+    WallpaperFilesSchema,
 )
-from utils.functions import is_file_allowed, allowed_file_or_abort
+from utils import allowed_file_or_abort
 from flask import request
 
 blueprint = Blueprint(
@@ -39,8 +40,12 @@ class Wallpapers(MethodView):
         page = pagination_parameters.page
         page_size = pagination_parameters.page_size
 
-        pagination = WallpaperModel.query.paginate(
-            page=page, per_page=page_size, count=True
+        pagination = WallpaperModel.query.order_by(
+            desc(WallpaperModel.created_at)
+        ).paginate(
+            page=page,
+            per_page=page_size,
+            count=True,
         )
         wallpapers = pagination.items
         total_count = pagination.total
@@ -58,15 +63,20 @@ class Wallpapers(MethodView):
 
         return response
 
-    @blueprint.arguments(CreateWallpaperSchema, location="files")
+    @blueprint.arguments(WallpaperSchema, location="form")
+    @blueprint.arguments(WallpaperFilesSchema, location="files")
     @blueprint.response(201, WallpaperSchema)
-    def post(self, new_data):
-        thumbnail_file = request.files.get("thumbnail", None)
-        desktop_file = request.files.get("desktop", None)
-        mobile_file = request.files.get("mobile", None)
-        tablet_file = request.files.get("tablet", None)
+    def post(self, form_data, files_data):
+        thumbnail_file = (
+            request.files["thumbnail"] if "thumbnail" in request.files else None
+        )
+        desktop_file = request.files["desktop"] if "desktop" in request.files else None
+        mobile_file = request.files["mobile"] if "mobile" in request.files else None
+        tablet_file = request.files["tablet"] if "tablet" in request.files else None
 
-        slug = slugify(new_data["name"])
+        slug = slugify(
+            form_data["name"].lower() if "name" in form_data else "wallpaper",
+        )
         existing_wallpaper = WallpaperModel.query.filter_by(slug=slug).first()
 
         if existing_wallpaper:
@@ -74,40 +84,19 @@ class Wallpapers(MethodView):
 
         files_data = []
 
-        if not thumbnail_file:
+        if thumbnail_file == None:
             abort(400, message="Thumbnail is required")
 
-        if not is_file_allowed(thumbnail_file.filename):
-            abort(400, message="Invalid thumbnail file type")
-        else:
-            filename = f"ggy-{slug}-thumbnail.{thumbnail_file.filename.rsplit('.', 1)[1].lower()}"
-            file_data = {
-                "file": thumbnail_file,
-                "filename": filename,
-            }
+        files_data.append(allowed_file_or_abort(thumbnail_file, slug, "thumbnail"))
 
-            files_data.append(file_data)
+        if desktop_file is not None:
+            files_data.append(allowed_file_or_abort(desktop_file, slug, "desktop"))
 
-        files_data.append(
-            allowed_file_or_abort(
-                thumbnail_file, "Invalid thumbnail file type", slug, "thumbnail"
-            )
-        )
-        files_data.append(
-            allowed_file_or_abort(
-                desktop_file, "Invalid desktop file type", slug, "desktop"
-            )
-        )
-        files_data.append(
-            allowed_file_or_abort(
-                mobile_file, "Invalid mobile file type", slug, "mobile"
-            )
-        )
-        files_data.append(
-            allowed_file_or_abort(
-                tablet_file, "Invalid tablet file type", slug, "tablet"
-            )
-        )
+        if mobile_file is not None:
+            files_data.append(allowed_file_or_abort(mobile_file, slug, "mobile"))
+
+        if tablet_file is not None:
+            files_data.append(allowed_file_or_abort(tablet_file, slug, "tablet"))
 
         boto_session = boto3.Session(
             aws_access_key_id=access_key_id,
@@ -118,22 +107,26 @@ class Wallpapers(MethodView):
         s3_client = boto_session.resource("s3")
 
         for file_data in files_data:
-            s3_client.upload_file(
+            s3_client.Bucket(bucket_name).upload_fileobj(
                 file_data["file"],
-                bucket_name,
                 path_prefix + file_data["filename"],
             )
 
-            new_data[file_data["type"]] = file_data["filename"]
+            form_data[file_data["type"]] = file_data["filename"]
 
-        new_data["slug"] = slug
+        form_data["slug"] = slug
 
-        wallpaper = WallpaperModel(**new_data)
+        wallpaper = WallpaperModel(**form_data)
         db.session.add(wallpaper)
 
         try:
             db.session.commit()
         except IntegrityError:
+            for file_data in files_data:
+                s3_client.Object(
+                    bucket_name, path_prefix + file_data["filename"]
+                ).delete()
+
             db.session.rollback()
             abort(400, message="Wallpaper already exists")
 
@@ -144,9 +137,11 @@ class Wallpapers(MethodView):
 class Wallpaper(MethodView):
     @blueprint.response(200, WallpaperSchema)
     def get(self, wallpaper_id):
-        return WallpaperModel.query.get_or_404(wallpaper_id)
+        return WallpaperModel.query.filter(
+            or_(WallpaperModel.id == wallpaper_id, WallpaperModel.slug == wallpaper_id)
+        ).first_or_404()
 
-    @blueprint.arguments(CreateWallpaperSchema, location="files")
+    @blueprint.arguments(WallpaperFilesSchema, location="files")
     @blueprint.response(201, WallpaperSchema)
     def put(self, wallpaper_data, wallpaper_id):
         wallpaper = WallpaperModel.query.get_or_404(wallpaper_id)
