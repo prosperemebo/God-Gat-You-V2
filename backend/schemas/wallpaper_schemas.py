@@ -38,3 +38,9 @@ class WallpaperFilesSchema(Schema):
     mobile = fields.Raw(type="file", required=False)
     desktop = fields.Raw(type="file", required=False)
     tablet = fields.Raw(type="file", required=False)
+
+class UpdateWallpaperFilesSchema(WallpaperFilesSchema):
+    thumbnail = fields.Raw(type="file", required=False)
+    
+class UpdateWallpaperSchema(_WallpaperSchema):
+    name = fields.Str()

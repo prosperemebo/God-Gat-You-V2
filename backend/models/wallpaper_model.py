@@ -54,3 +54,12 @@ class WallpaperModel(db.Model):
             .where(LikeModel.wallpaper_id == cls.id)
             .label("likes_count")
         )
+
+    def update(self, **kwargs):
+        restricted_fields = [self.id, self.created_at, self.updated_at]
+
+        for key, value in kwargs.items():
+            if key in restricted_fields:
+                continue
+
+            setattr(self, key, value)

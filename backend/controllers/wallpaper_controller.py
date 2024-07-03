@@ -1,22 +1,25 @@
 import os
+from venv import logger
 import boto3
-from sqlalchemy import desc, or_
 import shortuuid
 
-from flask.views import MethodView
-from flask_smorest import Blueprint, abort
-from sqlalchemy.exc import IntegrityError
-
 from db import db
+from flask import request
 from slugify import slugify
+from sqlalchemy import desc, or_
 from models import WallpaperModel
+from flask.views import MethodView
+from utils import allowed_file_or_abort
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from flask_smorest import Blueprint, abort
+
 from schemas import (
     WallpaperSchema,
     AllWallpapersSchema,
     WallpaperFilesSchema,
+    UpdateWallpaperFilesSchema,
+    UpdateWallpaperSchema,
 )
-from utils import allowed_file_or_abort
-from flask import request
 
 blueprint = Blueprint(
     "Wallpapers",
@@ -128,12 +131,16 @@ class Wallpapers(MethodView):
                 ).delete()
 
             db.session.rollback()
-            abort(400, message="Wallpaper already exists")
+            abort(400, message="A Wallpaper name already exists!")
+        except SQLAlchemyError:
+            abort(
+                500, message="An error occurred while adding the item to the database."
+            )
 
         return wallpaper
 
 
-@blueprint.route("/<int:wallpaper_id>")
+@blueprint.route("/<string:wallpaper_id>")
 class Wallpaper(MethodView):
     @blueprint.response(200, WallpaperSchema)
     def get(self, wallpaper_id):
@@ -141,13 +148,99 @@ class Wallpaper(MethodView):
             or_(WallpaperModel.id == wallpaper_id, WallpaperModel.slug == wallpaper_id)
         ).first_or_404()
 
-    @blueprint.arguments(WallpaperFilesSchema, location="files")
+    @blueprint.arguments(UpdateWallpaperSchema, location="form")
+    @blueprint.arguments(UpdateWallpaperFilesSchema, location="files")
     @blueprint.response(201, WallpaperSchema)
-    def put(self, wallpaper_data, wallpaper_id):
+    def put(self, wallpaper_data, wallpaper_files, wallpaper_id):
+        thumbnail_file = (
+            request.files["thumbnail"] if "thumbnail" in request.files else None
+        )
+        desktop_file = request.files["desktop"] if "desktop" in request.files else None
+        mobile_file = request.files["mobile"] if "mobile" in request.files else None
+        tablet_file = request.files["tablet"] if "tablet" in request.files else None
+
         wallpaper = WallpaperModel.query.get_or_404(wallpaper_id)
 
         wallpaper.update(**wallpaper_data)
-        db.session.commit()
+
+        if "name" in wallpaper_data:
+            slug = slugify(
+                (wallpaper_data["name"].lower()),
+            )
+            existing_wallpaper = WallpaperModel.query.filter_by(slug=slug).first()
+
+            if existing_wallpaper:
+                slug = f"{slug}-{shortuuid.ShortUUID().random(length=5)}"
+
+            wallpaper.slug = slug
+
+        unique_slug_for_files = wallpaper.slug + shortuuid.ShortUUID().random(length=5)
+        files_data = []
+        files_to_delete = []
+
+        if thumbnail_file is not None:
+            files_data.append(
+                allowed_file_or_abort(
+                    thumbnail_file, unique_slug_for_files, "thumbnail"
+                )
+            )
+            files_to_delete.append(wallpaper.thumbnail)
+
+        if desktop_file is not None:
+            files_data.append(
+                allowed_file_or_abort(desktop_file, unique_slug_for_files, "desktop")
+            )
+            files_to_delete.append(wallpaper.desktop)
+
+        if mobile_file is not None:
+            files_data.append(
+                allowed_file_or_abort(mobile_file, unique_slug_for_files, "mobile")
+            )
+            files_to_delete.append(wallpaper.mobile)
+
+        if tablet_file is not None:
+            files_data.append(
+                allowed_file_or_abort(tablet_file, unique_slug_for_files, "tablet")
+            )
+            files_to_delete.append(wallpaper.tablet)
+
+        boto_session = boto3.Session(
+            aws_access_key_id=access_key_id,
+            aws_secret_access_key=access_secret_key,
+            region_name=region_name,
+        )
+
+        s3_client = boto_session.client("s3")
+
+        try:
+            for file_data in files_data:
+                s3_client.upload_fileobj(
+                    file_data["file"], bucket_name, path_prefix + file_data["filename"]
+                )
+                setattr(wallpaper, file_data["type"], file_data["filename"])
+
+            db.session.commit()
+
+            for filename in files_to_delete:
+                if filename:
+                    s3_client.delete_object(
+                        Bucket=bucket_name, Key=path_prefix + filename
+                    )
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            logger.error(f"Error committing to database: {str(e)}")
+            abort(
+                500, description="An internal error occurred. Please try again later."
+            )
+
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error uploading to S3: {str(e)}")
+            abort(
+                500,
+                description="An error occurred while uploading files. Please try again later.",
+            )
 
         return wallpaper
 
