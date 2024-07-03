@@ -12,3 +12,5 @@ flask_cors
 boto3
 awesome-slugify
 shortuuid
+sqlalchemy-searchable
+sqlalchemy-utils

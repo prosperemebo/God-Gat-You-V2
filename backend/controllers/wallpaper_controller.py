@@ -19,6 +19,7 @@ from schemas import (
     WallpaperFilesSchema,
     UpdateWallpaperFilesSchema,
     UpdateWallpaperSchema,
+    SearchWallpaperSchema,
 )
 
 blueprint = Blueprint(
@@ -38,8 +39,39 @@ path_prefix = os.getenv("AWS_UPLOAD_PATH_PREFIX", "")
 @blueprint.route("/")
 class Wallpapers(MethodView):
     @blueprint.response(200, AllWallpapersSchema)
-    @blueprint.paginate()
+    @blueprint.paginate(page=1, page_size=100)
     def get(self, pagination_parameters):
+        page = pagination_parameters.page
+        page_size = pagination_parameters.page_size
+
+        pagination = WallpaperModel.query.order_by(
+            desc(WallpaperModel.created_at)
+        ).paginate(
+            page=page,
+            per_page=page_size,
+            count=True,
+        )
+        wallpapers = pagination.items
+        total_count = pagination.total
+        total_pages = pagination.pages
+
+        response = {
+            "status": "success",
+            "message": f"Found {len(wallpapers)} wallpapers",
+            "data": wallpapers,
+            "page": page,
+            "page_size": page_size,
+            "total_count": total_count,
+            "total_pages": total_pages,
+        }
+
+        return response
+
+    @blueprint.route("/search")
+    @blueprint.arguments(SearchWallpaperSchema, location="query")
+    @blueprint.response(200, AllWallpapersSchema)
+    @blueprint.paginate(page=1, page_size=100)
+    def search_wallpapers(self, pagination_parameters):
         page = pagination_parameters.page
         page_size = pagination_parameters.page_size
 

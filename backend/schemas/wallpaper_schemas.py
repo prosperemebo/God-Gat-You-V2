@@ -44,3 +44,6 @@ class UpdateWallpaperFilesSchema(WallpaperFilesSchema):
     
 class UpdateWallpaperSchema(_WallpaperSchema):
     name = fields.Str()
+    
+class SearchWallpaperSchema(Schema):
+    query = fields.Str(required=True)

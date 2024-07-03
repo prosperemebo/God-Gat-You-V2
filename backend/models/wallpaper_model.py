@@ -2,6 +2,11 @@ import uuid
 from db import db
 from .like_model import LikeModel
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy_searchable import make_searchable
+from sqlalchemy_utils.types import TSVectorType
+
+
+make_searchable(db.metadata)
 
 
 class WallpaperModel(db.Model):

@@ -16,6 +16,7 @@ services:
       retries: 3
 
   backend:
+    image: godgatyou-app
     container_name: Godgatyou-backend
     build: ./backend
     command: flask run --host=0.0.0.0
