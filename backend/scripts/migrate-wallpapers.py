@@ -44,7 +44,7 @@ def store_wallpapers(data):
             id=item["paper_id"],
             name=name,
             slug=slug,
-            thumbnail=item["thumbnail"],
+            thumbnail="wallpaper" + item["thumbnail"],
             mobile=item["mobile"],
             desktop=item["desktop"],
             tablet=item["tablet"],

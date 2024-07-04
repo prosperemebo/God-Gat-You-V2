@@ -19,7 +19,7 @@ export const cormorant = Cormorant({
 export const primaryFont = poppins.className;
 export const secondaryFont = cormorant.className;
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'God Gat You - Welcome to God God You',
   description:
     'We bring motivating and inspirating wallpapers every week to help, inspire and change people’s perspectives towards the world and life. And we do this in order of His coming.',

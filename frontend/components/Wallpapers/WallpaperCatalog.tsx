@@ -8,7 +8,7 @@ interface IPropTypes {
 function WallpaperCatalog({wallpapers}: IPropTypes) {
   return (
     <ul className={classes.wallpaperCatalog}>
-      {wallpapers.map((wallpaper) => (
+      {wallpapers?.map((wallpaper) => (
         <Wallpaper key={wallpaper.id} wallpaper={wallpaper} />
       ))}
     </ul>

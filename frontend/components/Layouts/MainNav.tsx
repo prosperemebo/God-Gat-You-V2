@@ -19,9 +19,9 @@ function MainNav() {
         <li>
           <Link href='/wallpapers'>Wallpapers</Link>
         </li>
-        <li>
+        {/* <li>
           <Link href='/about'>About</Link>
-        </li>
+        </li> */}
       </ul>
     </nav>
   );

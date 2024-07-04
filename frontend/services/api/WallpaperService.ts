@@ -20,7 +20,8 @@ class WallpaperService {
       } as HeadersInit,
     };
 
-    const url = `${this.endpoints.wallpapers}?page=${page}&page_size=${page_size}`;
+	const uniqueParam = `&_=${new Date().getTime()}`;
+    const url = `${this.endpoints.wallpapers}?page=${page}&page_size=${page_size}${uniqueParam}`;
     const response = await fetch(url, options);
 
     return response.json();

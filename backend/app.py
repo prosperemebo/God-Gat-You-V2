@@ -16,7 +16,12 @@ def create_app(db_url=None):
 
     app = Flask(__name__)
 
-    CORS(app)
+    CORS(
+        app,
+        origins=[
+            "http://localhost:3000",
+        ],
+    )
 
     app.config["API_TITLE"] = "God Gat You API"
     app.config["API_VERSION"] = "v1"
