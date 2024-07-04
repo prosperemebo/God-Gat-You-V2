@@ -1,9 +1,14 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-
+import { Poppins } from 'next/font/google';
 import '../sass/main.scss';
+import MainNav from '@/components/Layouts/MainNav';
 
-const inter = Inter({ subsets: ['latin'] });
+const poppins = Poppins({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-poppins',
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+});
 
 export const metadata: Metadata = {
   title: 'God Gat You - Welcome to God God You',
@@ -23,7 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={inter.className}>{children}</body>
+      <body className={poppins.className}>
+        <MainNav />
+        {children}
+      </body>
     </html>
   );
 }

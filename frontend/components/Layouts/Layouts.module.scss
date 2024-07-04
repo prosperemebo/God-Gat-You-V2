@@ -1,0 +1,44 @@
+@import '@/sass/abstracts/variables.scss';
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid $border-color-1;
+  padding: 2.5rem 0.5rem;
+
+  .logo {
+    width: 6.5rem;
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  .navLinks {
+    display: flex;
+    align-items: center;
+    gap: 6rem;
+
+    a {
+      text-decoration: none;
+      font-size: 1.8rem;
+      text-transform: uppercase;
+      color: $color-primary;
+      font-weight: 300;
+      display: inline-block;
+      transition: 300ms ease;
+      transition-property: color, transform;
+
+      &.active {
+        color: $color-green;
+      }
+
+      &:hover {
+        color: $color-green;
+        transform: scale(1.05);
+      }
+    }
+  }
+}

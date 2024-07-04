@@ -12,27 +12,15 @@
 }
 
 .Toastify__toast-theme--dark {
-  background-color: $color-dark-2;
+  background-color: $color-dark;
   border: 2px solid $border-color-1;
   padding: 2rem 3rem 2rem 2rem;
   border-radius: 2rem;
   font-size: 1.4rem;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    border-radius: inherit;
-    height: 100%;
-    width: 100%;
-    background-image: $table-card-gradient-1;
-    opacity: 0.1;
-  }
 }
 
 .Toastify__close-button {
-  background-color: $color-gray-1;
+  background-color: $color-dark;
   height: 3.5rem;
   width: 3.5rem;
   border-radius: 50%;
