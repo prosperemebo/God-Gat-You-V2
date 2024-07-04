@@ -14,3 +14,4 @@ awesome-slugify
 shortuuid
 sqlalchemy-searchable
 sqlalchemy-utils
+requests

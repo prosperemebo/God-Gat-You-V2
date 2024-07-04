@@ -6,6 +6,7 @@ import shortuuid
 from db import db
 from flask import request
 from slugify import slugify
+from datetime import datetime
 from sqlalchemy import desc, or_
 from models import WallpaperModel
 from flask.views import MethodView
@@ -113,9 +114,18 @@ class Wallpapers(MethodView):
             form_data["name"].lower() if "name" in form_data else "wallpaper",
         )
         existing_wallpaper = WallpaperModel.query.filter_by(slug=slug).first()
+        trials = 0
 
-        if existing_wallpaper:
-            slug = f"{slug}-{shortuuid.ShortUUID().random(length=5)}"
+        while existing_wallpaper:
+            if trials == 0:
+                current_year = str(datetime.now().year)
+                slug = f"{slug}-{current_year}"
+
+                trials += 1
+            else:
+                slug = f"{slug}-{shortuuid.ShortUUID().random(length=5)}"
+
+            existing_wallpaper = WallpaperModel.query.filter_by(slug=slug).first()
 
         files_data = []
 

@@ -14,12 +14,14 @@ blp = Blueprint("Users", "users", description="Operations on users")
 class UserRegister(MethodView):
     @blp.arguments(UserSchema)
     def post(self, user_data):
-        if UserModel.query.filter(UserModel.username == user_data["username"]).first():
-            abort(409, message="A user with that username already exists")
+        if UserModel.query.filter(UserModel.email == user_data["email"]).first():
+            abort(409, message="A user with that email already exists")
+
+        hashed_password = pbkdf2_sha256.hash(user_data["password"])
 
         user = UserModel(
-            username=user_data["username"],
-            password=pbkdf2_sha256.hash(user_data["password"]),
+            **user_data,
+            password=hashed_password,
         )
 
         db.session.add(user)
@@ -28,7 +30,7 @@ class UserRegister(MethodView):
         return {"message": "User created successfully!"}, 201
 
 
-@blp.route("/user/<int:user_id>")
+@blp.route("/user/<string:user_id>")
 class User(MethodView):
     @blp.response(200, UserSchema)
     def get(self, user_id):

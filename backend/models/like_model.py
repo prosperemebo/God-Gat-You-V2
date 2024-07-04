@@ -14,6 +14,10 @@ class LikeModel(db.Model):
     updated_at = db.Column(
         db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now()
     )
+    
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'wallpaper_id', name='unique_user_wallpaper_like'),
+    )
 
     def __init__(self, id=None, **kwargs):
         if id is None:
