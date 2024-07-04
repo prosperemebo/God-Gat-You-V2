@@ -1,0 +1,58 @@
+.sized-box {
+  height: 1.5rem;
+}
+
+.mb-md {
+  margin-bottom: 3rem;
+}
+
+.mb-lg {
+  margin-bottom: 5rem;
+
+  @include respond(phone) {
+    margin-bottom: 3.5rem;
+  }
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.center-text {
+  text-align: center;
+}
+
+.chip {
+  flex-grow: 0;
+  align-self: flex-start;
+  display: inline-block;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 1.4rem;
+  padding: 0.3rem 1rem;
+  border-radius: 3rem;
+
+  &.error {
+    background-color: $color-error;
+    color: $color-white;
+  }
+
+  &.success {
+    background-color: $color-success;
+    color: $color-dark;
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+
+  svg {
+    transform-origin: center;
+    animation: rotate 0.5s linear infinite;
+  }
+}

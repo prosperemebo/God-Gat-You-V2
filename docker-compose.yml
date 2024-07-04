@@ -34,5 +34,16 @@ services:
     depends_on:
       - postgres
 
+  frontend:
+    image: node:20-alpine
+    container_name: Godgatyou-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/data
+    working_dir: /data
+    command: [sh, -c, "npm i && npm run dev"]
+    stdin_open: true
+
 volumes:
   db_data:

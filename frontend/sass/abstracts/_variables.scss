@@ -1,0 +1,32 @@
+$color-primary: #ffffff;
+$color-secondary: #040b09;
+$color-dark: #020504;
+
+$color-white: #ffffff;
+$color-black: #000000;
+
+$border-color-1: #212b27;
+$border-color-2: #222c27;
+
+$color-green: #dcff14;
+
+$text-color-1: #ffebd8;
+$text-color-2: #473b21;
+$text-color-3: #a29c8a;
+$text-color-3: #a29c8a;
+$text-color-4: #403a37;
+
+$color-background: #040b09;
+
+$color-error: #ee361d;
+$color-success: #7dee1d;
+$color-warning: #fdd140;
+
+//FONT-SIZE
+$default-font-size: 2.5rem;
+
+.Toastify__toast-body {
+  border-radius: 0px;
+  font-size: 1.4rem;
+  color: $color-secondary;
+}
