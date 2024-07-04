@@ -8,13 +8,7 @@ function MainNav() {
   return (
     <nav className={`${classes.navigation} center-content`}>
       <Link className={classes.logo} href='/'>
-        <Image
-          src={logo}
-          alt='God Gat You'
-          width={100}
-          height={100}
-          objectFit='contain'
-        />
+        <Image src={logo} alt='God Gat You' width={100} height={100} />
       </Link>
       <ul className={classes.navLinks}>
         <li>

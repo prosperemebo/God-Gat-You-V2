@@ -13,7 +13,6 @@ body {
   text-shadow: 10px 10px 200px rgba($color-green, 0.7);
   font-weight: 600;
 
-
   &.sm {
     font-size: 6rem;
   }
@@ -27,10 +26,15 @@ body {
   }
 
   @include respond(tab-land) {
-    font-size: 6rem;
+    font-size: 10rem;
   }
 
   @include respond(phone) {
+    font-size: 8rem;
+  }
+  
+  @include respond(phone) {
+    font-size: 6rem;
     line-height: 120%;
 
     &.sm {
@@ -87,16 +91,24 @@ body {
 }
 
 .heading-tertiary {
-  font-weight: 600;
-  font-size: 2.5rem;
+  font-weight: 400;
+  font-size: 4rem;
   line-height: 150%;
   text-transform: capitalize;
-  color: $color-secondary;
+  color: $color-primary;
   margin-bottom: 1rem;
+  font-style: italic;
+}
 
-  @include respond(phone) {
-    font-size: 2.2rem;
-  }
+.text-link {
+  font-weight: 400;
+  font-size: 6rem;
+  line-height: 150%;
+  text-transform: capitalize;
+  color: $color-primary;
+  margin-bottom: 1rem;
+  font-style: italic;
+  text-decoration: underline;
 }
 
 .card-heading {

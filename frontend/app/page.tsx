@@ -1,10 +1,15 @@
+import { Fragment } from 'react';
 import Header from '@/components/Layouts/Header';
+import WallpaperListPreview from '@/components/Wallpapers/WallpaperListPreview';
 
-function Home() {
+async function Home() {
+
+
   return (
-    <main>
+    <Fragment>
       <Header />
-    </main>
+      <WallpaperListPreview  />
+    </Fragment>
   );
 }
 

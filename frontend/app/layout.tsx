@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Poppins, Cormorant } from 'next/font/google';
-import '../sass/main.scss';
 import MainNav from '@/components/Layouts/MainNav';
+import '../sass/main.scss';
 
-export const poppins = Poppins({
+const poppins = Poppins({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-poppins',
@@ -15,6 +15,9 @@ export const cormorant = Cormorant({
   display: 'swap',
   weight: ['300', '400', '500', '600', '700'],
 });
+
+export const primaryFont = poppins.className;
+export const secondaryFont = cormorant.className;
 
 export const metadata: Metadata = {
   title: 'God Gat You - Welcome to God God You',
@@ -34,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={poppins.className}>
+      <body className={primaryFont}>
         <MainNav />
         {children}
       </body>

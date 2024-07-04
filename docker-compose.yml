@@ -44,6 +44,10 @@ services:
     working_dir: /data
     command: [sh, -c, "npm i && npm run dev"]
     stdin_open: true
+    environment:
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
 
 volumes:
   db_data:

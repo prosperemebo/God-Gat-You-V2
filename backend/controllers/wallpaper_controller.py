@@ -7,7 +7,7 @@ from db import db
 from flask import request
 from slugify import slugify
 from datetime import datetime
-from sqlalchemy import desc, or_
+from sqlalchemy import asc, desc, or_
 from models import WallpaperModel
 from flask.views import MethodView
 from utils import allowed_file_or_abort
@@ -34,7 +34,7 @@ access_key_id = os.getenv("AWS_ACCESS_KEY_ID", "")
 access_secret_key = os.getenv("AWS_SECRET_ACCESS_KEY", "")
 region_name = os.getenv("AWS_REGION_NAME", "")
 bucket_name = os.getenv("AWS_S3_BUCKET_NAME", "")
-path_prefix = os.getenv("AWS_UPLOAD_PATH_PREFIX", "")
+path_prefix = os.getenv("AWS_UPLOAD_PATH_PREFIX", "") + "wallpaper/"
 
 
 @blueprint.route("/")
@@ -45,9 +45,20 @@ class Wallpapers(MethodView):
         page = pagination_parameters.page
         page_size = pagination_parameters.page_size
 
-        pagination = WallpaperModel.query.order_by(
-            desc(WallpaperModel.created_at)
-        ).paginate(
+        sort_by = request.args.get("sort", "created_at")
+        order = request.args.get("order", "desc")
+
+        sort_order = desc
+
+        if order == "asc":
+            sort_order = asc
+
+        if sort_by not in ["created_at", "likes_count", "downloads"]:
+            sort_by = "created_at"
+
+        sort_attr = getattr(WallpaperModel, sort_by)
+
+        pagination = WallpaperModel.query.order_by(sort_order(sort_attr)).paginate(
             page=page,
             per_page=page_size,
             count=True,

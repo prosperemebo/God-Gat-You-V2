@@ -60,4 +60,14 @@
 .center-content {
   margin-left: 7vw;
   margin-right: 7vw;
+
+  @include respond(tab-port) {
+    margin-left: 5vw;
+    margin-right: 5vw;
+  }
+
+  @include respond(phone) {
+    margin-left: 4vw;
+    margin-right: 4vw;
+  }
 }
