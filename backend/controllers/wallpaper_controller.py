@@ -190,6 +190,19 @@ class Wallpaper(MethodView):
             or_(WallpaperModel.id == wallpaper_id, WallpaperModel.slug == wallpaper_id)
         ).first_or_404()
 
+    @blueprint.get("/<string:wallpaper_id>/download")
+    @blueprint.response(200, WallpaperSchema)
+    def download(wallpaper_id):
+        wallpaper = WallpaperModel.query.filter(
+            or_(WallpaperModel.id == wallpaper_id, WallpaperModel.slug == wallpaper_id)
+        ).first_or_404()
+
+        wallpaper.downloads += 1
+
+        db.session.commit()
+
+        return wallpaper
+
     @blueprint.arguments(UpdateWallpaperSchema, location="form")
     @blueprint.arguments(UpdateWallpaperFilesSchema, location="files")
     @blueprint.response(201, WallpaperSchema)
