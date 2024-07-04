@@ -1,13 +1,19 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { Poppins, Cormorant } from 'next/font/google';
 import '../sass/main.scss';
 import MainNav from '@/components/Layouts/MainNav';
 
-const poppins = Poppins({
+export const poppins = Poppins({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-poppins',
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+});
+
+export const cormorant = Cormorant({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 });
 
 export const metadata: Metadata = {
